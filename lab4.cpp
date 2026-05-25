@@ -233,13 +233,17 @@ vec3 composeButterfly(
 
 void main()
 {
-    vec2 p = texCoord;
+    vec2 uv = texCoord;
 
-    //отражаем
+    // визуально бабочка повернется против часовой
+    vec2 p = vec2(
+        0.5 - uv.y,
+        1.0 - uv.x
+    );
+
     vec2 ps =
         vec2(abs(p.x - 0.5) + 0.5, p.y);
 
-    //рисуем
     vec3 col =
         composeButterfly(p, ps);
 
