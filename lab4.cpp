@@ -95,17 +95,54 @@ float wingContour(vec2 p)
     return d;
 }
 
-//крыло
+// проверка находится ли точка внутри крыла
+float isInsideWing(vec2 p)
+{
+    vec2 A = vec2(0.50, 0.55);
+    vec2 B = vec2(0.70, 0.95);
+    vec2 C = vec2(0.92, 0.68);
+    vec2 D = vec2(0.86, 0.22);
+    vec2 E = vec2(0.55, 0.35);
+
+    // аппроксимируем крыло многоугольником
+    int numPoints = 50;
+    vec2 points[50];
+
+    // верхняя арка
+    for(int i = 0; i <= 24; i++)
+    {
+        float t = float(i)/24.0;
+        points[i] = bezier(A, B, C, t);
+    }
+
+    // нижняя арка
+    for(int i = 25; i <= 49; i++)
+    {
+        float t = float(i-25)/24.0;
+        points[i] = bezier(C, D, E, t);
+    }
+
+    // проверка точки внутри многоугольника (алгоритм четности)
+    bool inside = false;
+    for(int i = 0, j = 49; i < 50; j = i++)
+    {
+        vec2 pi = points[i];
+        vec2 pj = points[j];
+
+        if(((pi.y > p.y) != (pj.y > p.y)) &&
+           (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x))
+        {
+            inside = !inside;
+        }
+    }
+
+    return inside ? 1.0 : 0.0;
+}
+
+//крыло (полная заливка)
 float wingMask(vec2 p)
 {
-    float d = wingContour(p);
-
-    return 1.0 -
-        smoothstep(
-            0.012,
-            0.020,
-            d
-        );
+    return isInsideWing(p);
 }
 
 //граница крыла
